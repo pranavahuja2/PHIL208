@@ -1,15 +1,16 @@
-# Extending the hospital-insurance mapping to include Hospital 2
+# Importing necessary libraries
 import pandas as pd
+from fuzzywuzzy import process
 
-insurance_col = pd.read_csv()
+# Reading the CSV file
+file_path = 'Ethics Project Form (Responses) - Form Responses 1.csv'
+insurance_col = pd.read_csv(file_path, usecols=["What’s your healthcare insurance provider?"])
 
+# Dictionary created for local Lafayette Hosptials and what insurances they cover
 hospital_insurance_mapping = {
-    "Hospital 1": [
+    "IU Arnett": [
         "Aetna",
-        "Aetna Medicare Advantage HMO/POS/PPO",
-        "Anthem Managed Medicaid - Hoosier Care Connect (HCC), Hoosier Healthwise (HHW) & Healthy Indiana Plan",
-        "Anthem PPO/HMO",
-        "Anthem Medicare Advantage PPO/HMO",
+        "Anthem",
         "Blue Cross and Blue Shield",
         "CareSource Managed Medicaid - HHW & HIP",
         "CareSource Marketplace",
@@ -40,7 +41,7 @@ hospital_insurance_mapping = {
         "UnitedHealthCare Medicare Advantage HMO/POS/PPO",
         "VA Community Care Network"
     ],
-    "Hospital 2": [
+    "Franciscan": [
         "Aetna",
         "Aetna Whole Health",
         "Coordinated Care Ambetter",
@@ -76,6 +77,43 @@ hospital_insurance_mapping = {
         "UHC Nexus ACO",
         "UHC Navigate",
         "UHC Charter"
+    ],
+    "Purdue PUSH": [
+        "United Healthcare",
+        "Anthem",
+        "Blue Cross and Blue Shield"
     ]
 }
+
+# Finds the closest match for user_input in insurance_options.
+def find_best_insurance_match(user_input, insurance_options, threshold=60):
+    best_match, score = process.extractOne(user_input, insurance_options)
+    if score < threshold:
+        return None
+    return best_match
+
+# Given an insurance provider, return a list of hospitals that accept this insurance.
+def get_hospitals_for_insurance(insurance, mapping):
+    if insurance is None:
+        return "Emergency Care"
+    
+    hospitals = []
+    for hospital, insurances in mapping.items():
+        if insurance in insurances:
+            hospitals.append(hospital)
+
+    if not hospitals:
+        return "Emergency Care"
+    return hospitals
+
+user_input = input("Enter your healthcare insurance provider: ")
+insurance_options = sum(hospital_insurance_mapping.values(), [])  # Flatten the list of all insurances
+best_insurance_match = find_best_insurance_match(user_input, insurance_options)
+hospitals = get_hospitals_for_insurance(best_insurance_match, hospital_insurance_mapping)
+
+if best_insurance_match is None:
+    print("No close match found for your insurance. Suggested option: Emergency Care")
+else:
+    print("Best insurance match:", best_insurance_match)
+    print("Hospitals that accept this insurance:", hospitals)
 
