@@ -1,0 +1,3 @@
+The code should do the following:
+
+There are datasets of local Lafayette hospitals and what insurances they cover. User enters their insurance and then accordingly, they are provided with what local hospitals cover their insurance. 
